@@ -1,238 +1,157 @@
 import { useState, useEffect } from 'react'
-import { Search, SlidersHorizontal, Shield, Zap, Star, ChevronRight, X } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { Search, ChevronRight, Zap, Truck, Shield, CreditCard, X } from 'lucide-react'
 import api from '../api/axios'
 import ProductCard from '../components/ProductCard'
-
-const CATEGORIES = ['Tümü', 'Elektronik', 'Bilgisayar', 'Ev Aletleri', 'Giyim & Ayakkabı', 'Fotoğraf & Video', 'Oyuncak']
 
 function SkeletonCard() {
   return (
     <div className="card">
-      <div className="skeleton aspect-[4/3] w-full" />
-      <div className="p-4 space-y-3">
-        <div className="skeleton h-4 w-3/4 rounded" />
+      <div className="skeleton aspect-square w-full" />
+      <div className="p-3 space-y-2">
+        <div className="skeleton h-3 w-16 rounded" />
         <div className="skeleton h-3 w-full rounded" />
-        <div className="skeleton h-3 w-5/6 rounded" />
-        <div className="skeleton h-9 w-full rounded-xl mt-4" />
+        <div className="skeleton h-3 w-3/4 rounded" />
+        <div className="skeleton h-5 w-24 rounded mt-2" />
       </div>
     </div>
   )
 }
 
 export default function Home() {
-  const [products, setProducts]     = useState([])
-  const [loading, setLoading]       = useState(true)
-  const [error, setError]           = useState(null)
-  const [search, setSearch]         = useState('')
-  const [category, setCategory]     = useState('Tümü')
-  const [searchInput, setSearchInput] = useState('')
+  const [products, setProducts] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const currentSearch   = searchParams.get('search') || ''
+  const currentCategory = searchParams.get('category') || ''
 
   useEffect(() => {
     fetchProducts()
-  }, [search, category])
+  }, [currentSearch, currentCategory])
 
   const fetchProducts = async () => {
     try {
       setLoading(true)
       setError(null)
       const params = {}
-      if (search) params.search = search
-      if (category !== 'Tümü') params.category = category
-
+      if (currentSearch) params.search = currentSearch
+      if (currentCategory) params.category = currentCategory
       const res = await api.get('/products', { params })
       setProducts(res.data.products || [])
-    } catch (err) {
-      setError('Ürünler yüklenemedi. Lütfen tekrar deneyin.')
+    } catch {
+      setError('Ürünler yüklenemedi.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setSearch(searchInput)
-  }
-
-  const clearSearch = () => {
-    setSearchInput('')
-    setSearch('')
-  }
+  const clearFilters = () => setSearchParams({})
 
   return (
-    <div className="min-h-screen">
-      {/* ── HERO ── */}
-      <section className="relative pt-28 pb-20 px-4 overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px]
-                          bg-primary-600/10 rounded-full blur-3xl" />
-        </div>
+    <div className="min-h-screen bg-gray-100 page-enter">
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full
-                          bg-primary-500/10 border border-primary-500/20 text-primary-400
-                          text-sm font-medium mb-6 animate-fade-in">
-            <Shield size={14} />
-            <span>AI Destekli Yorum Doğrulama Aktif</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+      {/* ── HERO BANNER ── */}
+      {!currentSearch && !currentCategory && (
+        <section className="bg-gradient-to-r from-orange-500 to-orange-400">
+          <div className="max-w-7xl mx-auto px-4 py-10 md:py-14 flex items-center justify-between">
+            <div className="text-white max-w-lg">
+              <h1 className="text-3xl md:text-4xl font-extrabold mb-3 leading-tight">
+                Aradığın Herşey<br/>Burada!
+              </h1>
+              <p className="text-orange-100 text-sm md:text-base mb-5">
+                Binlerce ürün, güvenli ödeme ve hızlı kargo ile kapında.
+                AI destekli yorum doğrulama sistemi ile güvenle alışveriş yap.
+              </p>
+              <div className="flex gap-3">
+                <button className="bg-white text-orange-600 font-semibold px-6 py-2.5 rounded-lg
+                                   hover:bg-orange-50 transition-colors text-sm">
+                  Alışverişe Başla
+                </button>
+                <button className="border border-white/40 text-white font-medium px-6 py-2.5 rounded-lg
+                                   hover:bg-white/10 transition-colors text-sm">
+                  Kampanyalar
+                </button>
+              </div>
+            </div>
+            <div className="hidden lg:block text-white/20 text-9xl font-black select-none">
+              AHB
+            </div>
           </div>
+        </section>
+      )}
 
-          <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-5 leading-tight tracking-tight animate-slide-up">
-            Aradığın Herşey<br />
-            <span className="gradient-text">Burada!</span>
-          </h1>
-
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10 animate-fade-in">
-            En sevdiğin markalar, yapay zeka tarafından doğrulanmış gerçek yorumlarla burada. 
-            Hızlı kargo ve güvenli alışverişin keyfini çıkar.
-          </p>
-
-          {/* Stats */}
-          <div className="flex items-center justify-center gap-8 mb-10 animate-fade-in">
+      {/* ── TRUST BADGES ── */}
+      {!currentSearch && !currentCategory && (
+        <section className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 py-4 grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Analiz Edilen Yorum', value: '12.4K+' },
-              { label: 'Tespit Edilen Spam', value: '98.2%' },
-              { label: 'Güvenilir Ürün',      value: '850+'  },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-2xl font-bold gradient-text">{stat.value}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{stat.label}</p>
+              { icon: <Truck size={20} />, title: 'Hızlı Kargo', desc: 'Aynı gün kargo' },
+              { icon: <Shield size={20} />, title: 'Güvenli Alışveriş', desc: 'AI yorum doğrulama' },
+              { icon: <CreditCard size={20} />, title: 'Güvenli Ödeme', desc: '256-bit SSL şifreleme' },
+              { icon: <Zap size={20} />, title: 'Kolay İade', desc: '14 gün iade garantisi' },
+            ].map((b) => (
+              <div key={b.title} className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-50 text-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  {b.icon}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">{b.title}</p>
+                  <p className="text-xs text-gray-400">{b.desc}</p>
+                </div>
               </div>
             ))}
           </div>
+        </section>
+      )}
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch}
-            className="flex gap-2 max-w-xl mx-auto animate-slide-up">
-            <div className="relative flex-1">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
-              <input
-                id="product-search"
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Ürün ara..."
-                className="input pl-10 pr-10"
-              />
-              {searchInput && (
-                <button type="button" onClick={clearSearch}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-            <button type="submit" className="btn-primary px-6 flex items-center gap-2">
-              <Search size={14} />
-              Ara
-            </button>
-          </form>
-        </div>
-      </section>
-
-      {/* ── PRODUCTS ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-
-        {/* Category Filter */}
-        <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-          <SlidersHorizontal size={16} className="text-gray-500 flex-shrink-0" />
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              id={`cat-${cat}`}
-              onClick={() => setCategory(cat)}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                category === cat
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
-                  : 'bg-dark-card border border-dark-border text-gray-400 hover:text-white hover:border-primary-500/40'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Section Header */}
-        <div className="flex items-center justify-between mb-6">
+      {/* ── PRODUCTS SECTION ── */}
+      <section className="max-w-7xl mx-auto px-4 py-6">
+        {/* Heading */}
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="section-title">
-              {search ? `"${search}" Sonuçları` : category === 'Tümü' ? 'Tüm Ürünler' : category}
+            <h2 className="text-lg font-bold text-gray-800">
+              {currentSearch ? `"${currentSearch}" için sonuçlar`
+                : currentCategory ? currentCategory
+                : 'Çok Satanlar'}
             </h2>
             {!loading && (
-              <p className="section-subtitle">{products.length} ürün bulundu</p>
+              <p className="text-xs text-gray-400 mt-0.5">{products.length} ürün listeleniyor</p>
             )}
           </div>
-          {search && (
-            <button onClick={clearSearch} className="btn-outline text-sm flex items-center gap-1">
-              <X size={14} /> Temizle
+          {(currentSearch || currentCategory) && (
+            <button onClick={clearFilters}
+              className="flex items-center gap-1 text-sm text-orange-500 hover:text-orange-600 font-medium">
+              <X size={14} /> Filtreleri Temizle
             </button>
           )}
         </div>
 
         {/* Error */}
         {error && (
-          <div className="text-center py-12">
-            <p className="text-red-400 mb-4">{error}</p>
-            <button onClick={fetchProducts} className="btn-primary">Tekrar Dene</button>
+          <div className="text-center py-12 bg-white rounded-lg">
+            <p className="text-red-500 mb-3">{error}</p>
+            <button onClick={fetchProducts} className="btn-primary text-sm">Tekrar Dene</button>
           </div>
         )}
 
-        {/* Products Grid */}
+        {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {[...Array(10)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="w-16 h-16 rounded-2xl bg-dark-card border border-dark-border
-                            flex items-center justify-center mx-auto mb-4">
-              <Search size={24} className="text-gray-600" />
-            </div>
-            <p className="text-gray-400 text-lg font-medium">Ürün bulunamadı</p>
-            <p className="text-gray-600 text-sm mt-1">Farklı bir arama terimi deneyin</p>
+          <div className="text-center py-16 bg-white rounded-lg">
+            <Search size={40} className="text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500 font-medium">Ürün bulunamadı</p>
+            <p className="text-gray-400 text-sm mt-1">Farklı anahtar kelimeler deneyin</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {products.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         )}
-      </section>
-
-      {/* ── FEATURES BANNER ── */}
-      <section className="border-t border-dark-border bg-dark-card/30 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: <Shield size={20} className="text-primary-400" />,
-                title: 'AI Yorum Denetimi',
-                desc: 'Her yorum gerçek zamanlı olarak analiz edilir, spam içerikler otomatik işaretlenir.',
-              },
-              {
-                icon: <Zap size={20} className="text-amber-400" />,
-                title: 'Görsel Doğrulama',
-                desc: 'Yorum görselleri review-image-ai sistemi ile taranır, sahte görseller tespit edilir.',
-              },
-              {
-                icon: <Star size={20} className="text-emerald-400" />,
-                title: 'Güven Skoru',
-                desc: 'Her yorum için 0-100 arası güven skoru hesaplanır, şeffaf sonuçlar gösterilir.',
-              },
-            ].map((f) => (
-              <div key={f.title} className="flex items-start gap-4 p-4 rounded-xl">
-                <div className="w-10 h-10 rounded-xl bg-dark-bg border border-dark-border
-                                flex items-center justify-center flex-shrink-0">
-                  {f.icon}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white text-sm mb-1">{f.title}</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">{f.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
     </div>
   )

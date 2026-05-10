@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
-  ArrowLeft, Star, MessageSquare, Shield, AlertTriangle,
-  Send, Image as ImageIcon, Package, ShoppingCart, Loader2
+  ArrowLeft, Star, MessageSquare, Shield, Send, Image as ImageIcon,
+  Truck, RotateCcw, ShoppingCart, Heart, Share2, Loader2, ChevronRight
 } from 'lucide-react'
 import api from '../api/axios'
 import CommentCard from '../components/CommentCard'
@@ -16,7 +16,7 @@ export default function ProductDetail() {
   const [comments, setComments] = useState([])
   const [loading,  setLoading]  = useState(true)
   const [commLoad, setCommLoad] = useState(true)
-  const [error,    setError]    = useState(null)
+  const [selectedImage, setSelectedImage] = useState('')
 
   // Comment form
   const [content,  setContent]  = useState('')
@@ -24,6 +24,7 @@ export default function ProductDetail() {
   const [rating,   setRating]   = useState(5)
   const [submitting, setSubmitting] = useState(false)
   const [submitMsg,  setSubmitMsg]  = useState(null)
+  const [liked, setLiked] = useState(false)
 
   const user = JSON.parse(localStorage.getItem('rg_user') || 'null')
 
@@ -37,11 +38,9 @@ export default function ProductDetail() {
       setLoading(true)
       const res = await api.get(`/products/${id}`)
       setProduct(res.data)
-    } catch {
-      setError('Ürün bulunamadı.')
-    } finally {
-      setLoading(false)
-    }
+      setSelectedImage(res.data.mainImage)
+    } catch { }
+    finally { setLoading(false) }
   }
 
   const fetchComments = async () => {
@@ -49,287 +48,280 @@ export default function ProductDetail() {
       setCommLoad(true)
       const res = await api.get('/comments', { params: { productId: id } })
       setComments(res.data.comments || [])
-    } catch {
-      setComments([])
-    } finally {
-      setCommLoad(false)
-    }
+    } catch { setComments([]) }
+    finally { setCommLoad(false) }
   }
 
   const handleSubmitComment = async (e) => {
     e.preventDefault()
     if (!content.trim()) return
-
     try {
-      setSubmitting(true)
-      setSubmitMsg(null)
+      setSubmitting(true); setSubmitMsg(null)
       await api.post('/comments', {
         content: content.trim(),
         imageUrl: imageUrl.trim() || null,
         rating,
         productId: parseInt(id),
       })
-      setContent('')
-      setImageUrl('')
-      setRating(5)
-      setSubmitMsg({ type: 'success', text: 'Yorumunuz başarıyla eklendi!' })
+      setContent(''); setImageUrl(''); setRating(5)
+      setSubmitMsg({ type: 'success', text: 'Yorumunuz eklendi!' })
       await fetchComments()
     } catch (err) {
-      setSubmitMsg({
-        type: 'error',
-        text: err.response?.data?.error || 'Yorum eklenemedi.',
-      })
-    } finally {
-      setSubmitting(false)
-    }
+      setSubmitMsg({ type: 'error', text: err.response?.data?.error || 'Yorum eklenemedi.' })
+    } finally { setSubmitting(false) }
   }
 
-  const spamCount  = comments.filter((c) => c.isSpam).length
-  const cleanCount = comments.filter((c) => !c.isSpam).length
-  const avgRating  = comments.length
-    ? (comments.reduce((s, c) => s + c.rating, 0) / comments.length).toFixed(1)
-    : '–'
+  const avgRating = comments.length
+    ? (comments.reduce((s, c) => s + c.rating, 0) / comments.length).toFixed(1) : '0'
+  const spamCount  = comments.filter(c => c.isSpam).length
 
-  // ── Loading ──
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-20">
-        <Loader2 size={32} className="text-primary-400 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 size={32} className="text-orange-500 animate-spin" />
       </div>
     )
   }
 
-  // ── Error ──
-  if (error || !product) {
+  if (!product) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center pt-20 gap-4">
-        <Package size={48} className="text-gray-700" />
-        <p className="text-gray-400 text-lg">{error || 'Ürün bulunamadı.'}</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <p className="text-gray-500 text-lg">Ürün bulunamadı.</p>
         <Link to="/" className="btn-primary">Ana Sayfaya Dön</Link>
       </div>
     )
   }
 
+  const discountPercent = Math.floor(Math.random() * 30) + 10
+  const originalPrice = product.price * (1 + discountPercent / 100)
+
   return (
-    <div className="min-h-screen pt-20 pb-20 page-enter">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
-          <Link to="/" className="flex items-center gap-1 hover:text-primary-400 transition-colors">
-            <ArrowLeft size={14} />
-            Ürünler
-          </Link>
-          <span>/</span>
-          <span className="text-gray-300">{product.name}</span>
+    <div className="min-h-screen bg-gray-100 page-enter">
+      {/* Breadcrumb */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-2 text-xs text-gray-400">
+          <Link to="/" className="hover:text-orange-500 transition-colors">Anasayfa</Link>
+          <ChevronRight size={12} />
+          <span className="hover:text-orange-500 cursor-pointer">{product.category}</span>
+          <ChevronRight size={12} />
+          <span className="text-gray-600">{product.name}</span>
         </div>
+      </div>
 
-        {/* ── Product Detail ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      {/* Product Detail */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-          {/* Image */}
-          <div className="card overflow-hidden">
-            <img
-              src={product.mainImage}
-              alt={product.name}
-              className="w-full h-80 lg:h-96 object-cover"
-              onError={(e) => {
-                e.target.src = `https://placehold.co/600x400/1f2937/6b7280?text=${encodeURIComponent(product.name)}`
-              }}
-            />
-          </div>
-
-          {/* Info */}
-          <div className="flex flex-col gap-5">
+            {/* LEFT: Images */}
             <div>
-              <span className="badge badge-blue mb-3">{product.category}</span>
-              <h1 className="text-3xl font-bold text-white leading-tight mb-3">
+              <div className="border border-gray-200 rounded-lg overflow-hidden bg-white mb-3">
+                <img
+                  src={selectedImage}
+                  alt={product.name}
+                  className="w-full h-80 lg:h-[28rem] object-contain p-6"
+                  onError={(e) => {
+                    e.target.src = `https://placehold.co/600x600/f3f4f6/9ca3af?text=Ürün`
+                  }}
+                />
+              </div>
+              {/* Thumbnail gallery */}
+              <div className="flex gap-2 overflow-x-auto">
+                <button
+                  onClick={() => setSelectedImage(product.mainImage)}
+                  className={`w-16 h-16 border rounded-lg overflow-hidden flex-shrink-0 transition-all ${
+                    selectedImage === product.mainImage ? 'border-orange-500 ring-1 ring-orange-200' : 'border-gray-200'
+                  }`}>
+                  <img src={product.mainImage} alt="" className="w-full h-full object-contain p-1" />
+                </button>
+                {product.images?.map((img) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setSelectedImage(img.url)}
+                    className={`w-16 h-16 border rounded-lg overflow-hidden flex-shrink-0 transition-all ${
+                      selectedImage === img.url ? 'border-orange-500 ring-1 ring-orange-200' : 'border-gray-200'
+                    }`}>
+                    <img src={img.url} alt="" className="w-full h-full object-contain p-1" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT: Info */}
+            <div className="flex flex-col gap-4">
+              {/* Brand */}
+              {product.brand && (
+                <Link to={`/?search=${product.brand}`}
+                  className="text-sm font-bold text-orange-500 hover:underline">
+                  {product.brand}
+                </Link>
+              )}
+
+              {/* Title */}
+              <h1 className="text-xl font-semibold text-gray-800 leading-snug">
                 {product.name}
               </h1>
-              <div className="flex items-center gap-3 mb-4">
+
+              {/* Rating summary */}
+              <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16}
+                    <Star key={i} size={15}
                       className={i < Math.round(Number(avgRating))
-                        ? 'text-amber-400 fill-amber-400'
-                        : 'text-gray-700'} />
+                        ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'} />
                   ))}
                 </div>
-                <span className="text-gray-400 text-sm">
-                  {avgRating} ({comments.length} yorum)
-                </span>
+                <span className="text-sm text-gray-500">{avgRating}</span>
+                <span className="text-sm text-gray-400">({comments.length} değerlendirme)</span>
+                {spamCount > 0 && (
+                  <span className="badge badge-red text-xs">{spamCount} spam tespit</span>
+                )}
               </div>
-              <p className="text-4xl font-extrabold gradient-text">
-                ₺{product.price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
 
-            <p className="text-gray-400 text-sm leading-relaxed">
-              {product.description}
-            </p>
+              <hr className="border-gray-100" />
 
-            {/* AI Review Stats */}
-            <div className="card p-4 bg-dark-card/50">
-              <div className="flex items-center gap-2 mb-3">
-                <Shield size={16} className="text-primary-400" />
-                <span className="text-sm font-semibold text-white">ReviewGuard Analizi</span>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="text-center p-2 rounded-lg bg-dark-bg">
-                  <p className="text-lg font-bold text-white">{comments.length}</p>
-                  <p className="text-xs text-gray-500">Toplam Yorum</p>
+              {/* Price */}
+              <div>
+                <div className="text-sm text-gray-400 line-through">
+                  {originalPrice.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL
                 </div>
-                <div className="text-center p-2 rounded-lg bg-emerald-950/30">
-                  <p className="text-lg font-bold text-emerald-400">{cleanCount}</p>
-                  <p className="text-xs text-gray-500">Doğrulanmış</p>
-                </div>
-                <div className="text-center p-2 rounded-lg bg-red-950/30">
-                  <p className="text-lg font-bold text-red-400">{spamCount}</p>
-                  <p className="text-xs text-gray-500">Spam</p>
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl font-bold text-orange-500">
+                    {product.price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL
+                  </span>
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+                    %{discountPercent}
+                  </span>
                 </div>
               </div>
-            </div>
 
-            {/* Stock */}
-            <div className="flex items-center gap-2 text-sm">
-              <Package size={14} className="text-gray-500" />
-              <span className="text-gray-500">Stok:</span>
-              <span className={`font-semibold ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                {product.stock > 0 ? `${product.stock} adet mevcut` : 'Tükendi'}
-              </span>
-            </div>
+              {/* Features */}
+              <div className="grid grid-cols-2 gap-3 py-2">
+                {[
+                  { icon: <Truck size={16} />, text: 'Ücretsiz Kargo' },
+                  { icon: <RotateCcw size={16} />, text: '14 Gün İade' },
+                  { icon: <Shield size={16} />, text: 'AI Yorum Doğrulama' },
+                  { icon: <Star size={16} />, text: `${comments.length} Değerlendirme` },
+                ].map((f) => (
+                  <div key={f.text} className="flex items-center gap-2 text-sm text-gray-600">
+                    <span className="text-orange-500">{f.icon}</span>
+                    {f.text}
+                  </div>
+                ))}
+              </div>
 
-            <button className="btn-primary flex items-center justify-center gap-2 py-3">
-              <ShoppingCart size={18} />
-              Sepete Ekle
-            </button>
+              {/* Description */}
+              <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+
+              {/* Stock info */}
+              <div className="text-sm">
+                {product.stock > 0 ? (
+                  <span className="text-green-600 font-medium">✓ Stokta ({product.stock} adet)</span>
+                ) : (
+                  <span className="text-red-500 font-medium">✕ Tükendi</span>
+                )}
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex gap-3 mt-2">
+                <button className="btn-primary flex-1 flex items-center justify-center gap-2 py-3.5 text-base">
+                  <ShoppingCart size={18} />
+                  Sepete Ekle
+                </button>
+                <button
+                  onClick={() => setLiked(!liked)}
+                  className={`w-13 h-13 border rounded-lg flex items-center justify-center transition-all ${
+                    liked ? 'bg-red-50 border-red-200 text-red-500' : 'border-gray-300 text-gray-400 hover:border-orange-300'
+                  }`}>
+                  <Heart size={20} className={liked ? 'fill-red-500' : ''} />
+                </button>
+                <button className="w-13 h-13 border border-gray-300 rounded-lg flex items-center justify-center
+                                   text-gray-400 hover:border-orange-300 transition-all">
+                  <Share2 size={20} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* ── COMMENTS SECTION ── */}
-        <section id="comments">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="section-title flex items-center gap-2">
-                <MessageSquare size={22} className="text-primary-400" />
-                Müşteri Yorumları
-              </h2>
-              <p className="section-subtitle">
-                Tüm yorumlar ReviewGuard AI tarafından denetlenmektedir
-              </p>
-            </div>
+        <div className="bg-white rounded-lg border border-gray-200 mt-6 overflow-hidden">
+          <div className="p-5 border-b border-gray-100">
+            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <MessageSquare size={20} className="text-orange-500" />
+              Değerlendirmeler ({comments.length})
+            </h2>
           </div>
 
           {/* Comment Form */}
           {user ? (
-            <div className="card p-6 mb-8">
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <Send size={16} className="text-primary-400" />
-                Yorum Yaz
-              </h3>
-              <form onSubmit={handleSubmitComment} className="space-y-4">
-                {/* Rating */}
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Puanınız</label>
-                  <StarRating value={rating} onChange={setRating} size={24} />
+            <div className="p-5 border-b border-gray-100 bg-gray-50">
+              <form onSubmit={handleSubmitComment} className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-600">Puanınız:</span>
+                  <StarRating value={rating} onChange={setRating} size={20} />
                 </div>
-
-                {/* Comment content */}
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Yorumunuz</label>
-                  <textarea
-                    id="comment-content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Ürün hakkındaki düşüncelerinizi paylaşın..."
-                    rows={4}
-                    required
-                    className="input resize-none"
-                  />
-                </div>
-
-                {/* Image URL */}
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2 flex items-center gap-1">
-                    <ImageIcon size={13} />
-                    Görsel URL (İsteğe bağlı — ReviewGuard tarafından analiz edilir)
-                  </label>
+                <textarea
+                  id="comment-content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Bu ürün hakkındaki düşünceleriniz..."
+                  rows={3}
+                  required
+                  className="input text-sm resize-none"
+                />
+                <div className="flex items-center gap-3">
                   <input
                     id="comment-image-url"
                     type="url"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="input"
+                    placeholder="Görsel URL (isteğe bağlı)"
+                    className="input text-sm flex-1"
                   />
+                  <button id="submit-comment" type="submit" disabled={submitting || !content.trim()}
+                    className="btn-primary flex items-center gap-2 text-sm">
+                    {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                    Gönder
+                  </button>
                 </div>
-
-                {/* Submit message */}
                 {submitMsg && (
-                  <div className={`text-sm px-4 py-2.5 rounded-lg ${
-                    submitMsg.type === 'success'
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                      : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                  }`}>
+                  <p className={`text-sm ${submitMsg.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
                     {submitMsg.text}
-                  </div>
+                  </p>
                 )}
-
-                <button
-                  id="submit-comment"
-                  type="submit"
-                  disabled={submitting || !content.trim()}
-                  className="btn-primary flex items-center gap-2"
-                >
-                  {submitting ? (
-                    <><Loader2 size={14} className="animate-spin" /> Gönderiliyor...</>
-                  ) : (
-                    <><Send size={14} /> Yorumu Gönder</>
-                  )}
-                </button>
               </form>
             </div>
           ) : (
-            <div className="card p-6 mb-8 text-center">
-              <Shield size={32} className="text-primary-400 mx-auto mb-3" />
-              <p className="text-gray-400 mb-4">Yorum yapmak için giriş yapmalısınız</p>
-              <div className="flex items-center justify-center gap-3">
-                <Link to="/login"    className="btn-primary">Giriş Yap</Link>
-                <Link to="/register" className="btn-outline">Kayıt Ol</Link>
-              </div>
+            <div className="p-5 border-b border-gray-100 bg-gray-50 text-center">
+              <p className="text-sm text-gray-500 mb-2">Yorum yapmak için giriş yapın</p>
+              <Link to="/login" className="btn-primary text-sm">Giriş Yap</Link>
             </div>
           )}
 
           {/* Comments List */}
           {commLoad ? (
-            <div className="space-y-4">
+            <div className="p-5 space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="card p-5 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="skeleton w-9 h-9 rounded-full" />
-                    <div className="space-y-1.5 flex-1">
-                      <div className="skeleton h-3 w-32 rounded" />
-                      <div className="skeleton h-2.5 w-24 rounded" />
-                    </div>
+                <div key={i} className="flex gap-3">
+                  <div className="skeleton w-8 h-8 rounded-full flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-3 w-32 rounded" />
+                    <div className="skeleton h-3 w-full rounded" />
                   </div>
-                  <div className="skeleton h-3 w-full rounded" />
-                  <div className="skeleton h-3 w-4/5 rounded" />
                 </div>
               ))}
             </div>
           ) : comments.length === 0 ? (
-            <div className="card p-10 text-center">
-              <MessageSquare size={36} className="text-gray-700 mx-auto mb-3" />
-              <p className="text-gray-500">Henüz yorum yapılmamış. İlk yorumu siz yazın!</p>
+            <div className="p-10 text-center text-gray-400 text-sm">
+              Henüz yorum yapılmamış. İlk yorumu siz yazın!
             </div>
           ) : (
-            <div className="space-y-4">
-              {comments.map((comment) => (
-                <CommentCard key={comment.id} comment={comment} />
-              ))}
+            <div>
+              {comments.map((c) => <CommentCard key={c.id} comment={c} />)}
             </div>
           )}
-        </section>
+        </div>
       </div>
     </div>
   )

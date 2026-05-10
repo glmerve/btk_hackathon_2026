@@ -3,121 +3,76 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    box-sizing: border-box;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
-    @apply bg-dark-bg text-gray-100 font-sans antialiased;
-    background-image:
-      radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
-    background-attachment: fixed;
+    @apply bg-gray-100 text-gray-800 font-sans antialiased;
   }
 }
 
 @layer components {
   /* ── Card ── */
   .card {
-    @apply bg-dark-card border border-dark-border rounded-2xl overflow-hidden 
-           transition-all duration-300;
+    @apply bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200
+           transition-all duration-200;
   }
   .card:hover {
-    @apply border-primary-500/40 shadow-lg shadow-primary-500/10;
-    transform: translateY(-2px);
+    @apply shadow-md border-gray-300;
   }
 
-  /* ── Button ── */
+  /* ── Buttons ── */
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-500 text-white font-semibold
-           px-6 py-2.5 rounded-xl transition-all duration-200
+    @apply bg-orange-500 hover:bg-orange-600 text-white font-semibold
+           px-6 py-2.5 rounded-lg transition-all duration-200
            active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-secondary {
-    @apply bg-dark-border hover:bg-dark-border/70 text-gray-300 hover:text-white
-           font-medium px-6 py-2.5 rounded-xl transition-all duration-200 active:scale-95;
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-700
+           font-medium px-6 py-2.5 rounded-lg transition-all duration-200 active:scale-95;
   }
   .btn-outline {
-    @apply border border-primary-500/50 hover:border-primary-400 text-primary-400
-           hover:text-primary-300 hover:bg-primary-500/10
-           font-medium px-6 py-2.5 rounded-xl transition-all duration-200;
+    @apply border border-orange-500 text-orange-500 hover:bg-orange-50
+           font-medium px-6 py-2.5 rounded-lg transition-all duration-200;
   }
 
   /* ── Input ── */
   .input {
-    @apply w-full bg-dark-bg border border-dark-border text-gray-100
-           placeholder-gray-500 rounded-xl px-4 py-3
-           focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/30
+    @apply w-full bg-white border border-gray-300 text-gray-800
+           placeholder-gray-400 rounded-lg px-4 py-3
+           focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100
            transition-all duration-200;
   }
 
   /* ── Badge ── */
   .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold;
   }
-  .badge-green  { @apply bg-emerald-500/15 text-emerald-400 border border-emerald-500/20; }
-  .badge-red    { @apply bg-red-500/15 text-red-400 border border-red-500/20; }
-  .badge-blue   { @apply bg-primary-500/15 text-primary-400 border border-primary-500/20; }
-  .badge-yellow { @apply bg-amber-500/15 text-amber-400 border border-amber-500/20; }
-
-  /* ── Section Title ── */
-  .section-title {
-    @apply text-2xl font-bold text-white mb-2;
-  }
-  .section-subtitle {
-    @apply text-gray-400 text-sm;
-  }
+  .badge-green  { @apply bg-green-100 text-green-700; }
+  .badge-red    { @apply bg-red-100 text-red-600; }
+  .badge-orange { @apply bg-orange-100 text-orange-600; }
 
   /* ── ReviewGuard Target Class ── */
-  /* Tarayıcı eklentisi bu class'ı yakalar ve AI analizi başlatır */
   .review-image-ai {
-    @apply rounded-xl object-cover cursor-pointer transition-all duration-300;
-    position: relative;
+    @apply rounded-lg object-cover cursor-pointer transition-all duration-300;
   }
   .review-image-ai:hover {
-    @apply ring-2 ring-primary-500/60 shadow-lg shadow-primary-500/20;
+    @apply ring-2 ring-orange-400 shadow-md;
     transform: scale(1.02);
   }
 
-  /* ── Gradient Text ── */
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary-400 to-violet-400 bg-clip-text text-transparent;
-  }
-
-  /* ── Glass Card ── */
-  .glass {
-    background: rgba(26, 26, 46, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.06);
-  }
-
-  /* ── Skeleton Loader ── */
+  /* ── Skeleton ── */
   .skeleton {
-    @apply bg-dark-border rounded animate-pulse;
-  }
-
-  /* ── Spam Overlay Badge ── */
-  .spam-badge {
-    @apply absolute top-2 right-2 badge badge-red text-xs font-bold z-10;
-    backdrop-filter: blur(4px);
+    @apply bg-gray-200 rounded animate-pulse;
   }
 }
 
-/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0f0f1a; }
-::-webkit-scrollbar-thumb { background: #2d2d44; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+::-webkit-scrollbar-track { background: #f3f4f6; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #f97316; }
 
-/* ── Page transition ── */
-.page-enter { animation: fadeIn 0.35s ease-out; }
-
+.page-enter { animation: fadeIn 0.25s ease-out; }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }

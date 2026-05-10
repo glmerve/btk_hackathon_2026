@@ -1,79 +1,86 @@
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Star, MessageSquare, Shield } from 'lucide-react'
+import { Star, Heart } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ProductCard({ product }) {
-  const avgRating = product.avgRating || 4.5
+  const [liked, setLiked] = useState(false)
   const commentCount = product._count?.comments || 0
+  const avgRating = 4.2 + Math.random() * 0.7 // demo
+
+  const discountPercent = Math.floor(Math.random() * 30) + 10
+  const originalPrice = product.price * (1 + discountPercent / 100)
 
   return (
     <Link to={`/products/${product.id}`} className="block group">
-      <div className="card h-full flex flex-col">
+      <div className="card h-full flex flex-col relative">
+        {/* Discount badge */}
+        <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+          %{discountPercent}
+        </div>
+
+        {/* Favorite */}
+        <button
+          onClick={(e) => { e.preventDefault(); setLiked(!liked) }}
+          className="absolute top-2 right-2 z-10 w-8 h-8 bg-white rounded-full shadow flex items-center
+                     justify-center hover:scale-110 transition-transform">
+          <Heart size={16} className={liked ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
+        </button>
 
         {/* Image */}
-        <div className="relative overflow-hidden bg-dark-border aspect-[4/3]">
+        <div className="relative overflow-hidden bg-white aspect-square">
           <img
             src={product.mainImage}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
             onError={(e) => {
-              e.target.src = `https://placehold.co/400x300/1f2937/6b7280?text=${encodeURIComponent(product.name)}`
+              e.target.src = `https://placehold.co/400x400/f3f4f6/9ca3af?text=${encodeURIComponent(product.name.split(' ')[0])}`
             }}
           />
-          {/* Category badge */}
-          <div className="absolute top-3 left-3">
-            <span className="badge badge-blue">{product.category}</span>
-          </div>
-          {/* AI Shield Badge */}
-          <div className="absolute top-3 right-3 flex items-center gap-1
-                          bg-emerald-500/20 border border-emerald-500/30
-                          text-emerald-400 text-xs font-semibold px-2 py-1 rounded-full
-                          backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <Shield size={10} />
-            AI Korumalı
-          </div>
-          {/* Price overlay */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-dark-bg/90 to-transparent p-4">
-            <span className="text-xl font-bold text-white">
-              ₺{product.price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}
-            </span>
-          </div>
         </div>
 
         {/* Content */}
-        <div className="p-4 flex flex-col flex-1 gap-3">
-          <h3 className="font-semibold text-white text-base leading-snug
-                         group-hover:text-primary-300 transition-colors line-clamp-2">
+        <div className="p-3 flex flex-col flex-1 gap-1.5">
+          {/* Brand */}
+          {product.brand && (
+            <span className="text-xs font-bold text-gray-800 uppercase tracking-wide">
+              {product.brand}
+            </span>
+          )}
+
+          {/* Name */}
+          <h3 className="text-sm text-gray-600 leading-snug line-clamp-2 min-h-[2.5rem]">
             {product.name}
           </h3>
 
-          <p className="text-sm text-gray-500 line-clamp-2 flex-1">
-            {product.description}
-          </p>
-
-          {/* Meta */}
-          <div className="flex items-center justify-between pt-1 border-t border-dark-border">
-            <div className="flex items-center gap-1">
+          {/* Rating */}
+          <div className="flex items-center gap-1">
+            <div className="flex">
               {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={12}
-                  className={i < Math.round(avgRating) ? 'text-amber-400 fill-amber-400' : 'text-gray-700'}
-                />
+                <Star key={i} size={11}
+                  className={i < Math.round(avgRating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'} />
               ))}
-              <span className="text-xs text-gray-500 ml-1">{avgRating.toFixed(1)}</span>
             </div>
-            <div className="flex items-center gap-1 text-gray-500 text-xs">
-              <MessageSquare size={12} />
-              <span>{commentCount} yorum</span>
+            <span className="text-xs text-gray-400">({commentCount})</span>
+          </div>
+
+          {/* Price */}
+          <div className="mt-auto pt-1">
+            <div className="text-xs text-gray-400 line-through">
+              {originalPrice.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL
+            </div>
+            <div className="text-lg font-bold text-orange-500">
+              {product.price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL
             </div>
           </div>
 
-          {/* CTA */}
-          <button className="btn-primary w-full flex items-center justify-center gap-2 text-sm py-2">
-            <ShoppingCart size={14} />
-            İncele
-          </button>
+          {/* Free shipping badge */}
+          {product.price > 3000 && (
+            <div className="text-xs text-green-600 font-medium flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+              Ücretsiz Kargo
+            </div>
+          )}
         </div>
       </div>
     </Link>
