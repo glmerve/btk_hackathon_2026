@@ -81,7 +81,7 @@ const getAllProducts = async (req, res, next) => {
         skip,
         take: parseInt(limit),
         orderBy: { createdAt: 'desc' },
-        include: { _count: { select: { comments: true } } },
+        include: { images: true, _count: { select: { comments: true } } },
       }),
       prisma.product.count({ where }),
     ]);
@@ -116,7 +116,7 @@ const getProductById = async (req, res, next) => {
     const productId = parseInt(req.params.id);
     let product = await prisma.product.findUnique({
       where: { id: productId },
-      include: { _count: { select: { comments: true } } },
+      include: { images: true, _count: { select: { comments: true } } },
     });
 
     // Veritabanında yoksa mock veriden bul
