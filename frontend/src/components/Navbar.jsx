@@ -42,9 +42,9 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-white leading-tight text-lg tracking-tight">
-                Review<span className="gradient-text">Guard</span>
+                Aradığın<span className="gradient-text"> Herşey Burada</span>
               </span>
-              <span className="text-xs text-gray-500 leading-none -mt-0.5">AI Korumalı Mağaza</span>
+              <span className="text-xs text-gray-500 leading-none -mt-0.5">Güvenli Alışverişin Adresi</span>
             </div>
           </Link>
 

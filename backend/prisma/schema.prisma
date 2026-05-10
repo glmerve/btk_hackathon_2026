@@ -14,30 +14,39 @@ model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
   password  String
-  role      String    @default("USER") // USER | ADMIN
+  role      String    @default("USER")
   createdAt DateTime  @default(now())
   comments  Comment[]
 }
 
 model Product {
-  id          Int       @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   name        String
   price       Float
   description String
-  mainImage   String
-  category    String    @default("Genel")
-  stock       Int       @default(100)
-  createdAt   DateTime  @default(now())
+  mainImage   String         // Kapak fotoğrafı
+  category    String         @default("Genel")
+  brand       String?        // Marka eklendi
+  stock       Int            @default(100)
+  createdAt   DateTime       @default(now())
+  images      ProductImage[] // Fotoğraf galerisi eklendi
   comments    Comment[]
+}
+
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  url       String
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
   content   String
-  imageUrl  String?
-  rating    Int      @default(5) // 1-5 yıldız
+  imageUrl  String?  // Kullanıcının yüklediği yorum fotoğrafı
+  rating    Int      @default(5)
   isSpam    Boolean  @default(false)
-  spamScore Float    @default(0) // ReviewGuard AI skor alanı (0.0 - 1.0)
+  spamScore Float    @default(0)
   createdAt DateTime @default(now())
   userId    Int
   productId Int

@@ -78,13 +78,13 @@ export default function Home() {
           </div>
 
           <h1 className="text-5xl md:text-6xl font-extrabold text-white mb-5 leading-tight tracking-tight animate-slide-up">
-            Gerçek Yorumlar,<br />
-            <span className="gradient-text">Güvenli Alışveriş</span>
+            Aradığın Herşey<br />
+            <span className="gradient-text">Burada!</span>
           </h1>
 
           <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10 animate-fade-in">
-            ReviewGuard AI sistemi, sahte yorumları otomatik tespit eder.
-            Her yorum analiz edilir, her görsel doğrulanır.
+            En sevdiğin markalar, yapay zeka tarafından doğrulanmış gerçek yorumlarla burada. 
+            Hızlı kargo ve güvenli alışverişin keyfini çıkar.
           </p>
 
           {/* Stats */}

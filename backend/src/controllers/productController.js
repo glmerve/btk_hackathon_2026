@@ -6,42 +6,57 @@ const MOCK_PRODUCTS = [
   {
     id: 1,
     name: 'Sony WH-1000XM5 Kablosuz Kulaklık',
-    price: 4299.99,
-    description: 'Sektörün en iyi gürültü engelleme özelliğine sahip premium kablosuz kulaklık. 30 saate kadar pil ömrü, katlanabilir tasarım ve mükemmel ses kalitesi.',
+    brand: 'Sony',
+    price: 11299.00,
+    description: 'Sektörün en iyi gürültü engelleme özelliğine sahip premium kablosuz kulaklık. 30 saate kadar pil ömrü ve mükemmel ses kalitesi.',
     mainImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=400&fit=crop',
     category: 'Elektronik',
     stock: 45,
-    _count: { comments: 3 }
+    _count: { comments: 12 }
   },
   {
     id: 2,
-    name: 'Apple MacBook Air M2',
-    price: 32999.99,
-    description: 'Apple M2 çip ile güçlendirilmiş ultra ince dizüstü bilgisayar. 13.6 inç Liquid Retina ekran, 18 saat pil ömrü.',
+    name: 'Apple MacBook Air M3 13"',
+    brand: 'Apple',
+    price: 45999.00,
+    description: 'Yeni M3 çip ile ultra performans ve şık tasarım. 18 saate kadar pil ömrü ve Liquid Retina ekran.',
     mainImage: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&h=400&fit=crop',
     category: 'Bilgisayar',
     stock: 20,
-    _count: { comments: 2 }
+    _count: { comments: 8 }
   },
   {
     id: 3,
-    name: 'Nike Air Max 270',
-    price: 2899.99,
-    description: 'Maksimum hava yastığı konforu ile günlük kullanım için tasarlanmış spor ayakkabı. Hafif mesh üst, dayanıklı taban.',
+    name: 'Nike Air Max Pulse',
+    brand: 'Nike',
+    price: 5499.00,
+    description: 'Sokak stiliyle konforu birleştiren yeni nesil Air Max tasarımı. Gün boyu yastıklama sağlar.',
     mainImage: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=400&fit=crop',
     category: 'Giyim & Ayakkabı',
     stock: 120,
-    _count: { comments: 4 }
+    _count: { comments: 24 }
   },
   {
     id: 4,
-    name: 'Dyson V15 Detect Süpürge',
-    price: 12999.99,
-    description: 'Lazer tozu algılama teknolojisi. 60 dakika pil ömrü, HEPA filtrasyon sistemi, LCD ekranlı akıllı mod.',
-    mainImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',
+    name: 'Samsung 55" QN85C Neo QLED 4K TV',
+    brand: 'Samsung',
+    price: 34999.00,
+    description: 'Quantum Matrix teknolojisi ile mükemmel siyahlar ve canlı renkler. Akıllı TV özellikleri dahildir.',
+    mainImage: 'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&h=400&fit=crop',
+    category: 'Elektronik',
+    stock: 15,
+    _count: { comments: 5 }
+  },
+  {
+    id: 5,
+    name: 'Nespresso Vertuo Pop Kahve Makinesi',
+    brand: 'Nespresso',
+    price: 4299.00,
+    description: 'Tek tuşla mükemmel kahve deneyimi. Şık ve kompakt tasarım, rengarenk seçeneklerle.',
+    mainImage: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=600&h=400&fit=crop',
     category: 'Ev Aletleri',
-    stock: 25,
-    _count: { comments: 1 }
+    stock: 30,
+    _count: { comments: 15 }
   }
 ];
 
