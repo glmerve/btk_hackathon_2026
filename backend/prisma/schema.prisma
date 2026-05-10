@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  role      String    @default("USER") // USER | ADMIN
+  createdAt DateTime  @default(now())
+  comments  Comment[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  price       Float
+  description String
+  mainImage   String
+  category    String    @default("Genel")
+  stock       Int       @default(100)
+  createdAt   DateTime  @default(now())
+  comments    Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  imageUrl  String?
+  rating    Int      @default(5) // 1-5 yıldız
+  isSpam    Boolean  @default(false)
+  spamScore Float    @default(0) // ReviewGuard AI skor alanı (0.0 - 1.0)
+  createdAt DateTime @default(now())
+  userId    Int
+  productId Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([userId])
+}
